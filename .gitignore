@@ -3,3 +3,4 @@ bin/
 data/raw_download/*.zip
 results_*.log
 __pycache__/
+docs/Gotta*.pdf
