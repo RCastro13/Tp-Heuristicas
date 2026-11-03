@@ -1,0 +1,7 @@
+highspy==1.15.1
+numpy
+pandas
+scipy
+matplotlib
+tabulate
+psutil

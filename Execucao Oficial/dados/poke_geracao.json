@@ -1,0 +1,68 @@
+{
+ "cidadeA": {
+  "semente": 101,
+  "tentativas": 1,
+  "L_NI": 6.047967,
+  "tamanhos_clusters": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   3,
+   3,
+   4,
+   5,
+   5,
+   8,
+   9,
+   15,
+   69
+  ]
+ },
+ "cidadeB": {
+  "semente": 202,
+  "tentativas": 1,
+  "L_NI": 9.690611,
+  "tamanhos_clusters": [
+   2,
+   2,
+   2,
+   3,
+   3,
+   4,
+   4,
+   4,
+   4,
+   5,
+   6,
+   7,
+   8,
+   13,
+   29
+  ]
+ },
+ "cidadeC": {
+  "semente": 303,
+  "tentativas": 1,
+  "L_NI": 5.807242,
+  "tamanhos_clusters": [
+   2,
+   3,
+   3,
+   3,
+   4,
+   4,
+   4,
+   5,
+   7,
+   8,
+   9,
+   14,
+   22,
+   24,
+   37
+  ]
+ }
+}

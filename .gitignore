@@ -4,3 +4,6 @@ data/raw_download/*.zip
 results_*.log
 __pycache__/
 docs/Gotta*.pdf
+
+# Saidas do piloto: so verificam o processo e impediriam o piloto de rodar em outra maquina
+Execucao Oficial/resultados/piloto/

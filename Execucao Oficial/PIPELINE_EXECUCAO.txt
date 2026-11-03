@@ -1,0 +1,90 @@
+PIPELINE DE EXECUÇÃO: heurísticas para o GCOP (Seção 3 do artigo)
+====================================================================
+
+MÁQUINA-ALVO (artigo): AMD Ryzen 5 5500, 16 GB de RAM, Windows 10 Pro.
+Requisitos: g++ 14.2.0 no PATH e Python 3.11 no PATH.
+
+LEVANDO A PASTA PARA A MÁQUINA-ALVO
+-----------------------------------
+    git clone https://github.com/RCastro13/Tp-Heuristicas.git
+    cd Tp-Heuristicas
+    git checkout execucao-oficial
+    cd "Execucao Oficial"
+O repositório traz o código e as 408 instâncias. As pastas .venv e bin são criadas pelo script.
+Se copiar a pasta manualmente, deixe de fora .venv, bin e resultados\piloto.
+
+ANTES DE COMEÇAR
+----------------
+- Feche o que não for necessário: os limites são de tempo de relógio e a carga da máquina afeta os resultados.
+- Em notebook, deixe na tomada: sem energia externa, os grupos oficiais ficam em espera.
+- O executor impede a suspensão do Windows enquanto roda.
+
+EXECUÇÃO COMPLETA (PowerShell, dentro da pasta "Execucao Oficial")
+------------------------------------------------------------------
+    powershell -ExecutionPolicy Bypass -File .\executa_tudo.ps1
+
+Essa linha faz, em ordem: preparo, piloto, heurísticas, formulação exata, análise e documento.
+Ao final, o resultado está em RESULTADOS.md (tabelas e gráficos em resultados\).
+
+Se for interrompida, execute a mesma linha de novo: as execuções já gravadas são puladas.
+Uma execução interrompida não fica gravada e será refeita.
+
+ETAPAS, UMA A UMA
+-----------------
+(Se o PowerShell bloquear o script, use a forma com -ExecutionPolicy Bypass mostrada acima.)
+    .\executa_tudo.ps1 -Etapa preparo   # venv, dependências, compilação, testes
+    .\executa_tudo.ps1 -Etapa piloto    # ~5 min; grava em resultados\piloto (não entra nos resultados)
+    .\executa_tudo.ps1 -Etapa heur      # H1, H2, H4 e base de H3
+    .\executa_tudo.ps1 -Etapa exato     # H3; precisa de heur concluído
+    .\executa_tudo.ps1 -Etapa analise   # tabelas, gráficos, vereditos e RESULTADOS.md
+
+Parâmetros e valores padrão:
+    -Processos 5             execuções simultâneas (artigo: até 5, um núcleo livre)
+    -OpcoesCompilacao "-std=c++17 -static"
+    -Gpp g++                 caminho do compilador
+
+TEMPO PREVISTO COM 5 PROCESSOS
+------------------------------
+Heurísticas (tempo fixo, calculado de t(n)):
+    25.620 execuções, 90.746 s de CPU: cerca de 5,0 h
+
+Formulação exata (294 instâncias de T1 a T3, limite de 600 s por instância):
+    no máximo 9,8 h; o tempo real depende de quantas terminam antes do limite
+
+Preparo, piloto e análise: menos de 15 min no total.
+
+DUAS DECISÕES QUE DIFEREM DO ARTIGO
+-----------------------------------
+1. SEM -O2: a compilação padrão não usa -O2, por decisão da equipe; o artigo especifica
+   "-O2 -std=c++17". Para seguir o artigo, acrescente em todas as etapas que compilam:
+       -OpcoesCompilacao "-O2 -std=c++17 -static"
+   Se mudar a opção, refaça a etapa heur do zero (apague resultados\brutos\heur.jsonl).
+
+2. LIMITE DA EXATA DE 600 s: o artigo usa 3.600 s. Com 600 s, menos ótimos são provados e os
+   limitantes ficam mais fracos, o que afeta a H3 e deve ser informado no artigo final.
+
+Essas opções ficam registradas em resultados\ambiente.json e aparecem em RESULTADOS.md.
+
+CONFERÊNCIA DOS RESULTADOS
+--------------------------
+RESULTADOS.md, seção 2, deve mostrar:
+    - 25620 execuções de 25620 previstas
+    - 0 falhas de execução
+    - 0 rotas divergentes
+    - 0 instâncias em que uma heurística superou um ótimo declarado
+Se aparecer "bateria incompleta", execute a etapa heur novamente: ela completa só o que falta.
+
+ARQUIVOS GERADOS
+----------------
+resultados\brutos\heur.jsonl      uma linha por execução heurística
+resultados\brutos\exato.jsonl     uma linha por instância da formulação exata
+resultados\tabelas\               tabelas de H1 a H4 (.md e .csv)
+resultados\figuras\               h1_dispersao, h2_boxplot, h2_acumulada, h4_barras
+resultados\resumo.json            medidas e vereditos
+RESULTADOS.md                     documento de resultados, conclusões e referências
+
+INSTÂNCIAS
+----------
+As 408 instâncias já estão em dados\ (instancias.csv, orcamento.csv, poke\, tsplib\) e não são
+recalculadas se dados\instancias.csv existir. Para regenerá-las, apague dados\instancias.csv,
+dados\orcamento.csv e dados\poke\.
