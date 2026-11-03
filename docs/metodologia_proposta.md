@@ -323,7 +323,7 @@ responsável por um efeito observado (ablações, ver §3.3.4).
 
 | Variante | Diferença em relação ao original | Pergunta que responde | Hipótese |
 |---|---|---|---|
-| **AG** | MA sem a linha `BL(F)` e com a população inicial sem BL | Quanto do desempenho do MA vem da busca local? | H8 |
+| **AG** | AG padrão: mesma população (10 indivíduos GRASP, sem INICIAL), torneio, cruzamento, mutação (AGITA com prob. 0,2) e substituição do MA, mas **sem nenhuma melhoria** — sem `BL(F)`, sem OTIMIZA_ROTA (2-opt/Or-opt) e sem BL na população inicial. A viabilidade vem só de um reparo que alterna remoção por $\Delta^-/p$ até caber em $B$ e cobertura dos clusters descobertos pela inserção mais barata, sem reordenar a rota | Quanto do desempenho do MA vem da busca local? | H8 |
 | **ALNS−C** | ALNS sem o operador de destruição *cluster* | O operador específico do GCOP faz diferença? | H6 |
 | **ILS-C** | ILS em que, com 50% de chance, a perturbação remove os representantes de $\lceil S/2\rceil$ clusters sorteados em vez de nós consecutivos | Trocar representantes corrige a falha do ILS em POKE? | H6 |
 

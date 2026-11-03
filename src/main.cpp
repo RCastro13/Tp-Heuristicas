@@ -5,7 +5,7 @@
 //   gcop solve <grafo> --profit unif|rand|clus|file --budget B --algo ALG
 //              [--seed S] [--time T] [--name NOME]
 // Algoritmos: NI, FI, ST, TSPD (construtivas + reparo); sufixos -SR (refinamento sigma
-// do artigo) e -LS (busca local exata); MSPD, GRASP, ILS, VNS, ALNS, SA, TS, MA.
+// do artigo) e -LS (busca local exata); MSPD, GRASP, ILS, VNS, ALNS, SA, TS, MA; AG (MA sem BL, ablação).
 #include "meta.hpp"
 
 static string jsonTour(const vector<int>& t) {
@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
     else if (algo == "SA") runSA(R);
     else if (algo == "TS") runTS(R);
     else if (algo == "MA") runMA(R);
+    else if (algo == "AG") runMA(R, 10, false);
     else { cerr << "algoritmo desconhecido: " << algo << "\n"; return 1; }
 
     double total = R.el();

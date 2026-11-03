@@ -126,7 +126,9 @@ inline void runILS(Runner& R) {
 // ------------------------------------------------ VNS
 // Vizinhança N_k: remove k nós aleatórios e insere k nós aleatórios de fora, seguido de
 // reparo e busca local (VNS básico de Mladenović & Hansen, 1997).
-inline Sol shake(Runner& R, const Sol& base, int k) {
+inline bool feasRepair(const Inst& I, Sol& s);
+
+inline Sol shake(Runner& R, const Sol& base, int k, bool ls = true) {
     const Inst& I = R.I;
     Sol s = base;
     for (int q = 0; q < k && s.m() > 2; q++) {
@@ -137,7 +139,7 @@ inline Sol shake(Runner& R, const Sol& base, int k) {
     for (int v = 0; v < I.n; v++) if (!s.in[v]) outs.push_back(v);
     shuffle(outs.begin(), outs.end(), R.rng);
     for (int q = 0; q < k && q < (int)outs.size(); q++) insertBest(I, s, outs[q]);
-    if (!s.feasible(I)) repair(I, s);
+    if (!s.feasible(I)) { if (ls) repair(I, s); else feasRepair(I, s); }
     return s;
 }
 
@@ -378,11 +380,13 @@ inline void runTS(Runner& R) {
     }
 }
 
-// ------------------------------------------------ Algoritmo Memético
+// ------------------------------------------------ Algoritmo Memético / Genético
 // População de soluções GRASP+BL; cruzamento por segmento do pai A + nós do pai B na ordem
 // de B (tour gigante), seguido de 2-opt, remoções por razão até caber em B e busca local.
-inline Sol dropToBudget(const Inst& I, Sol s) {
-    routeOpt(I, s);
+// Com ls = false é o AG padrão (ablação): sem BL, sem 2-opt/Or-opt e só reparo de viabilidade.
+
+// Remove o nó de pior razão (ganho de comprimento / prêmio), preferindo removíveis, até caber em B.
+inline void dropByRatio(const Inst& I, Sol& s) {
     while (s.len > I.B + 1e-9 && s.m() > 1) {
         double best = -1e300; int bi = -1; bool bRem = false;
         for (int idx = 0; idx < s.m(); idx++) {
@@ -393,21 +397,40 @@ inline Sol dropToBudget(const Inst& I, Sol s) {
         }
         removeAt(I, s, bi);
     }
+}
+
+// Reparo só de viabilidade (AG): alterna remoção por razão e cobertura de clusters pela
+// inserção mais barata, sem reotimizar a ordem da rota.
+inline bool feasRepair(const Inst& I, Sol& s) {
+    for (int round = 0; round < 20 && !s.feasible(I); round++) {
+        dropByRatio(I, s);
+        coverClusters(I, s, 0);
+    }
+    s.len = tourLength(I, s.tour);
+    return s.feasible(I);
+}
+
+inline Sol dropToBudget(const Inst& I, Sol s) {
+    routeOpt(I, s);
+    dropByRatio(I, s);
     if (!s.feasible(I)) repair(I, s);
     return s;
 }
 
-inline void runMA(Runner& R, int P = 10) {
+inline void runMA(Runner& R, int P = 10, bool ls = true) {
     const Inst& I = R.I;
     vector<Sol> pop;
-    pop.push_back(initialSolution(R));
+    if (ls) pop.push_back(initialSolution(R));
     while ((int)pop.size() < P && !R.timeUp()) {
         Sol s = graspConstruct(I, 0.05 + 0.35 * R.urand(), R.rng);
-        if (!s.feasible(I)) repair(I, s);
-        improve(I, s);
+        if (ls) {
+            if (!s.feasible(I)) repair(I, s);
+            improve(I, s);
+        } else if (!feasRepair(I, s)) continue;
         R.consider(s);
         pop.push_back(s);
     }
+    if (pop.empty()) return;
     auto tour = [&]() {
         int a = R.irand(0, pop.size() - 1), b = R.irand(0, pop.size() - 1);
         return better(pop[a], pop[b]) ? a : b;
@@ -424,9 +447,9 @@ inline void runMA(Runner& R, int P = 10) {
         for (int v : c.tour) used[v] = 1;
         for (int v : Bp.tour) if (!used[v]) { c.tour.push_back(v); used[v] = 1; }
         recompute(I, c);
-        c = dropToBudget(I, c);
-        if (R.urand() < 0.2) c = shake(R, c, 2);
-        improve(I, c);
+        if (ls) c = dropToBudget(I, c); else feasRepair(I, c);
+        if (R.urand() < 0.2) c = shake(R, c, 2, ls);
+        if (ls) improve(I, c);
         R.iters++;
         if (!c.feasible(I)) continue;
         R.consider(c);

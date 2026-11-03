@@ -5,7 +5,7 @@ Heurísticas, metaheurísticas e métodos de controle para o GCOP (Álvarez-Mira
 - `docs/metodologia.md` — heurísticas propostas e de controle (origem, pseudocódigo, complexidade),
   ambiente, instâncias e hipóteses/experimentos.
 - `docs/resultados.md` — resultados preliminares da bateria de testes.
-- `src/` — implementação C++ (construtivas NI/FI/ST/TSPD, busca local, MSPD, GRASP, ILS, VNS, ALNS, SA, TS, MA).
+- `src/` — implementação C++ (construtivas NI/FI/ST/TSPD, busca local, MSPD, GRASP, ILS, VNS, ALNS, SA, TS, MA e a ablação AG).
 - `scripts/` — instâncias (`build_instances.py`), métodos MIP com HiGHS (`mip.py`: BB-MTZ, EXACT-CUT, LBR),
   execução da bateria (`run_experiments.py`), complexidade (`timing.py`) e análise (`analyze.py`).
 - `data/` — grafos TSPLIB-GCOP dos autores (`raw_download/`), instâncias POKE sintéticas (`poke/`) e `instances.csv`.
