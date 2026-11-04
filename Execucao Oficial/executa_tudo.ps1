@@ -7,7 +7,8 @@ param(
     [string]$Etapa = "tudo",
     [int]$Processos = 5,
     [string]$OpcoesCompilacao = "-std=c++17 -static",
-    [string]$Gpp = "g++"
+    [string]$Gpp = "g++",
+    [string]$Python = ""  # interpretador que cria a .venv; vazio: Python 3.11 do lançador py
 )
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
@@ -28,9 +29,28 @@ function VenvValido {
     try { & $py -c "import sys" *> $null; return ($LASTEXITCODE -eq 0) } catch { return $false }
 }
 
+# Não usa o "python" do PATH: ele pode ser o do MSYS2, cuja venv não tem Scripts\python.exe.
+function PythonBase {
+    $ErrorActionPreference = "Continue"
+    $exe = $Python
+    if (-not $exe) {
+        if (-not (Get-Command py -ErrorAction SilentlyContinue)) {
+            throw "Lancador py nao encontrado: instale o Python 3.11 ou informe -Python <caminho do python.exe>"
+        }
+        $exe = & py -3.11 -c "import sys; print(sys.executable)" 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $exe) {
+            throw "Python 3.11 nao encontrado pelo lancador py: instale-o ou informe -Python <caminho do python.exe>"
+        }
+    }
+    & $exe -c "import sys; sys.exit(0 if sys.platform == 'win32' and 'GCC' not in sys.version else 1)"
+    if ($LASTEXITCODE -ne 0) { throw "$exe nao serve: e preciso um Python nativo do Windows (nao o do MSYS2)" }
+    return $exe
+}
+
 function Preparo {
     if (-not (VenvValido)) {
-        python -m venv --clear .venv; Confere "venv"
+        $base = PythonBase
+        & $base -m venv --clear .venv; Confere "venv"
     }
     & $py -m pip install -q -r requirements.txt; Confere "pip"
     New-Item -ItemType Directory -Force bin | Out-Null

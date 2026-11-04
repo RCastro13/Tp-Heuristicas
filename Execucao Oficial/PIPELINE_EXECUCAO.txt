@@ -2,7 +2,7 @@ PIPELINE DE EXECUÇÃO: heurísticas para o GCOP (Seção 3 do artigo)
 ====================================================================
 
 MÁQUINA-ALVO (artigo): AMD Ryzen 5 5500, 16 GB de RAM, Windows 10 Pro.
-Requisitos: g++ 14.2.0 no PATH e Python 3.11 no PATH.
+Requisitos: g++ 14.2.0 no PATH e Python 3.11 nativo do Windows (localizado com "py -3.11" ou informado em -Python).
 
 LEVANDO A PASTA PARA A MÁQUINA-ALVO
 -----------------------------------
@@ -42,6 +42,7 @@ Parâmetros e valores padrão:
     -Processos 5             execuções simultâneas (artigo: até 5, um núcleo livre)
     -OpcoesCompilacao "-std=c++17 -static"
     -Gpp g++                 caminho do compilador
+    -Python <python.exe>     Python que cria a .venv (padrão: o 3.11 do lançador py; o "python" do PATH não é usado)
 
 TEMPO PREVISTO COM 5 PROCESSOS
 ------------------------------

@@ -1,0 +1,62 @@
+{
+ "execucoes": 25620,
+ "erros_execucao": 0,
+ "rotas_divergentes": 0,
+ "inviaveis": 240,
+ "instancias": 408,
+ "heuristica_acima_do_otimo": 0,
+ "excesso_tempo_max_s": 0.1772000000000009,
+ "excesso_tempo_p99_s": 0.021481000000000167,
+ "H1": {
+  "p": 8.648008073517159e-24,
+  "classes_pior": [],
+  "veredito": "confirmada"
+ },
+ "H2": {
+  "friedman_p": 6.958451574748815e-186,
+  "vencem_mspd": [
+   "VNS",
+   "ILS",
+   "MA"
+  ],
+  "veredito": "parcialmente confirmada",
+  "melhor_rank": "MA",
+  "ranks": {
+   "MSPD": 4.616421568627451,
+   "MSPD-LS": 3.911764705882353,
+   "VNS": 2.9044117647058822,
+   "ILS": 2.6299019607843137,
+   "ALNS": 4.699754901960785,
+   "MA": 2.2377450980392157
+  },
+  "ma_e_o_melhor": true,
+  "ma_vs": {
+   "MA < MSPD-LS": 1.6112061107671467e-43,
+   "MA < VNS": 2.870799831493215e-11,
+   "MA < ILS": 3.158187404382244e-10,
+   "MA < ALNS": 2.5563174567550077e-59
+  }
+ },
+ "H3": {
+  "provadas": 0,
+  "melhor": "MA"
+ },
+ "H4": {
+  "degradacao": {
+   "ILS": 0.8094188204119475,
+   "ILS-C": 0.4547018288064406,
+   "VNS": 0.6922361579655412,
+   "ALNS": -0.10726675469973124,
+   "MA": 0.693613263173638
+  },
+  "cond_i": true,
+  "p_ilsc": 0.0088103305552409,
+  "cond_ii": true,
+  "vde_ilsc_ils": [
+   13,
+   0,
+   5
+  ],
+  "veredito": "confirmada"
+ }
+}
