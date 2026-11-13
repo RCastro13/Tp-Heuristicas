@@ -1,0 +1,9 @@
+Família,Comparação,V/E/D,Dif. média (p.p.),p bruto,p Holm
+Heurística proposta vs. MSPD,VNS < MSPD,263/100/45,"0,131","<0,0001","<0,0001"
+Heurística proposta vs. MSPD,ILS < MSPD,286/97/25,"-0,002","<0,0001","<0,0001"
+Heurística proposta vs. MSPD,ALNS < MSPD,159/83/166,"1,046","0,0972","0,0972"
+Heurística proposta vs. MSPD,MA < MSPD,299/100/9,"-0,178","<0,0001","<0,0001"
+MA vs. propostos,MA < MSPD-LS,268/121/19,"0,603","<0,0001","<0,0001"
+MA vs. propostos,MA < VNS,168/169/71,"-0,309","<0,0001","<0,0001"
+MA vs. propostos,MA < ILS,166/168/74,"-0,176","<0,0001","<0,0001"
+MA vs. propostos,MA < ALNS,307/95/6,"-1,224","<0,0001","<0,0001"

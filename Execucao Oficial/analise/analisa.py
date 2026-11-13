@@ -1,4 +1,6 @@
-"""Tabelas, gráficos, testes estatísticos e vereditos de H1 a H4 (Seção 3.3 do artigo).
+"""Tabelas, gráficos, testes estatísticos e vereditos de H1 a H3 (Seção 3.3 do artigo tp3-heu.pdf).
+
+A formulação exata não é mais uma hipótese: ela entra só como referência (BKS e ótimo provado).
 
 Antes de qualquer cálculo, todas as rotas são reavaliadas aqui, de forma independente do C++: vértices
 distintos, cobertura dos clusters, orçamento e prêmio.
@@ -150,6 +152,7 @@ def main():
     classe = inst.classe.reindex(M.index)
     presentes = [m for m in METODOS if m in M.columns]
     M6 = M[presentes].dropna()
+    M.assign(classe=inst.classe.reindex(M.index)).to_csv(os.path.join(ptab, "gap_por_instancia.csv"), encoding="utf-8")
     resumo = dict(execucoes=len(heur_ok), erros_execucao=len(erros_exec), rotas_divergentes=div,
                   inviaveis=int((~R.viavel).sum()), instancias=int(M6.shape[0]),
                   heuristica_acima_do_otimo=len(set(acima_otimo)),
@@ -228,7 +231,7 @@ def main():
                  "p bruto": p, "p Holm": q} for (a, b), p, q in zip(pares, ps, aj)]
     f1 = familia([(m, "MSPD") for m in ["VNS", "ILS", "ALNS", "MA"]])
     f2 = familia([("MA", m) for m in ["MSPD-LS", "VNS", "ILS", "ALNS"]])
-    t3 = pd.DataFrame([{"Família": "Metaheurística vs. MSPD", **x} for x in f1] + [{"Família": "MA vs. propostos", **x} for x in f2])
+    t3 = pd.DataFrame([{"Família": "Heurística proposta vs. MSPD", **x} for x in f1] + [{"Família": "MA vs. propostos", **x} for x in f2])
     t3f = t3.copy()
     t3f["Dif. média (p.p.)"] = t3f["Dif. média (p.p.)"].map(lambda x: fn(x, 3))
     t3f["p bruto"] = t3f["p bruto"].map(fp); t3f["p Holm"] = t3f["p Holm"].map(fp)
@@ -238,7 +241,41 @@ def main():
     ma_melhor = melhor_rank == "MA" and all(x["p Holm"] < ALFA for x in f2)
     resumo["H2"] = dict(friedman_p=fried, vencem_mspd=venc, veredito=ver, melhor_rank=melhor_rank,
                         ranks={m: float(ranks[m].mean()) for m in presentes}, ma_e_o_melhor=bool(ma_melhor),
-                        ma_vs={x["Comparação"]: x["p Holm"] for x in f2})
+                        ma_vs={x["Comparação"]: x["p Holm"] for x in f2},
+                        vs_mspd={x["Comparação"]: x["p Holm"] for x in f1})
+
+    # Sensibilidade: sem as 6 instâncias brg180, em que VNS, ILS, ALNS e MA não acham solução viável
+    sem = M6.index[~M6.index.str.startswith("brg180")]
+    if 0 < len(sem) < len(M6):
+        Ms = M6.loc[sem]
+        rks = Ms.rank(axis=1, method="average")
+        frs = float(stats.friedmanchisquare(*[Ms[m] for m in presentes]).pvalue)
+
+        def fam_s(pares):
+            ps = [wilcoxon(Ms[a], Ms[b]) for a, b in pares]
+            return list(zip(pares, ps, holm(ps)))
+        g1 = fam_s([(m, "MSPD") for m in ["VNS", "ILS", "ALNS", "MA"]])
+        g2 = fam_s([("MA", m) for m in ["MSPD-LS", "VNS", "ILS", "ALNS"]])
+        venc_s = [a for (a, _), _, q in g1 if q < ALFA]
+        ver_s = "refutada" if frs >= ALFA or not venc_s else ("confirmada" if len(venc_s) == 4 else "parcialmente confirmada")
+        mel_s = rks.mean().idxmin()
+        linhas = []
+        for m in presentes:
+            lin = {"Método": m, "Gap com brg180 (%)": fn(M6[m].mean(), 3), "Gap sem brg180 (%)": fn(Ms[m].mean(), 3),
+                   "Rank com": fn(ranks[m].mean(), 2), "Rank sem": fn(rks[m].mean(), 2)}
+            q_com = next((x["p Holm"] for x in f1 if x["Comparação"] == f"{m} < MSPD"), None)
+            q_sem = next((q for (a, _), _, q in g1 if a == m), None)
+            lin["p Holm vs. MSPD com"] = fp(q_com) if q_com is not None else "-"
+            lin["p Holm vs. MSPD sem"] = fp(q_sem) if q_sem is not None else "-"
+            linhas.append(lin)
+        salva(pd.DataFrame(linhas), ptab, "h2_sensibilidade_brg180",
+              f"H2: sensibilidade à exclusão das 6 instâncias brg180 ({len(M6)} e {len(Ms)} instâncias; Friedman sem brg180 p = {fp(frs)})")
+        resumo["H2_sem_brg180"] = dict(instancias=int(len(Ms)), friedman_p=frs, vencem_mspd=venc_s, veredito=ver_s,
+                                       melhor_rank=mel_s, ranks={m: float(rks[m].mean()) for m in presentes},
+                                       gap_medio={m: float(Ms[m].mean()) for m in presentes},
+                                       vs_mspd={f"{a} < {b}": q for (a, b), _, q in g1},
+                                       ma_vs={f"{a} < {b}": q for (a, b), _, q in g2},
+                                       ma_e_o_melhor=bool(mel_s == "MA" and all(q < ALFA for _, _, q in g2)))
 
     # Detalhe por classe, para sustentar a discussão
     linhas = []
@@ -274,10 +311,10 @@ def main():
     ax.legend(ncol=3, loc="lower right")
     fig.tight_layout(); fig.savefig(os.path.join(pfig, "h2_acumulada.png"), dpi=200); plt.close(fig)
 
-    # ------------------------------------------------------------- H3
+    # ------------------------------------------------------------- Referência exata (descritiva)
     cl3 = ["T1", "T2", "T3"]
     Ro = R[R.inst.isin(otimo.keys()) & R.algo.isin(presentes)].copy()
-    resumo["H3"] = dict(provadas=len(otimo), melhor=melhor_rank)
+    resumo["exato"] = dict(provadas=len(otimo), melhor=melhor_rank)
     if len(Ro):
         Ro["opt"] = Ro.inst.map(otimo)
         Ro["gap_opt"] = np.where(Ro.viavel, 100 * (Ro.opt - Ro.P) / Ro.opt, 100.0)
@@ -292,12 +329,11 @@ def main():
                 lin[f"{c} gap máx."] = fn(y.gap_opt.max(), 3) if len(y) else "n/d"
                 lin[f"{c} % ótimas"] = fn(100 * y.e_otima.mean(), 1) if len(y) else "n/d"
             linhas.append(lin)
-        salva(pd.DataFrame(linhas), ptab, "h3_gap_otimo", f"H3: distância ao ótimo nas {len(otimo)} instâncias com ótimo provado")
+        salva(pd.DataFrame(linhas), ptab, "ref_gap_otimo", f"Referência: gap ao ótimo nas {len(otimo)} instâncias com ótimo provado")
         xb = Ro[Ro.algo == melhor_rank]
         g_b, t_b = float(xb.groupby("inst").gap_opt.mean().mean()), float(100 * xb.e_otima.mean())
-        desc = len(otimo) < 30
-        ver3 = ("refutada" if g_b > 0.5 else "confirmada" if t_b >= 90 else "parcialmente confirmada")
-        resumo["H3"].update(gap_medio=g_b, pct_otimas=t_b, apenas_descritiva=desc, veredito="descritiva" if desc else ver3)
+        resumo["exato"].update(gap_medio=g_b, pct_otimas=t_b,
+                               gap_medio_por_metodo={m: float(Ro[Ro.algo == m].groupby("inst").gap_opt.mean().mean()) for m in presentes})
     if len(E):
         E["classe"] = E.inst.map(inst.classe)
         E["bks"] = E.inst.map(bks)
@@ -312,40 +348,41 @@ def main():
             linhas.append({"Classe": c, "Instâncias": len(x), "Ótimo provado": len(ot),
                            "Tempo médio resolvidas (s)": fn(ot.tempo.mean(), 1) if len(ot) else "n/d",
                            "Limitante - BKS nas não resolvidas (%)": fn(d.mean(), 2) if d.notna().any() else "n/d"})
-        salva(pd.DataFrame(linhas), ptab, "h3_exato", "H3: resolução da formulação exata por classe")
+        salva(pd.DataFrame(linhas), ptab, "ref_exato", "Referência: resolução da formulação exata por classe")
+        resumo["exato"].update(instancias=int(len(E)), por_situacao={k: int(v) for k, v in E.situacao.value_counts().items()})
 
-    # ------------------------------------------------------------- H4
-    mh4 = [m for m in ["ILS", "ILS-C", "VNS", "ALNS", "MA"] if m in M.columns]
+    # ------------------------------------------------------------- H3 (antiga H4)
+    mh3 = [m for m in ["ILS", "ILS-C", "VNS", "ALNS", "MA"] if m in M.columns]
     T4 = M.index[classe == "T4"]
     PK = M.index[classe == "PK"]
     if len(T4) and len(PK):
         linhas = [{"Método": m, "Gap T4 (%)": M.loc[T4, m].mean(), "Gap PK (%)": M.loc[PK, m].mean(),
-                   "Degradação (p.p.)": M.loc[PK, m].mean() - M.loc[T4, m].mean()} for m in mh4]
+                   "Degradação (p.p.)": M.loc[PK, m].mean() - M.loc[T4, m].mean()} for m in mh3]
         t4 = pd.DataFrame(linhas)
         deg = dict(zip(t4["Método"], t4["Degradação (p.p.)"]))
         c1 = deg["ILS"] > deg["VNS"] and deg["ILS"] > deg["ALNS"]
         pc = wilcoxon(M.loc[PK, "ILS-C"], M.loc[PK, "ILS"])
         c2 = pc < ALFA and M.loc[PK, "ILS-C"].mean() < M.loc[PK, "ILS"].mean()
-        resumo["H4"] = dict(degradacao={k: float(v) for k, v in deg.items()}, cond_i=bool(c1), p_ilsc=pc, cond_ii=bool(c2),
+        resumo["H3"] = dict(degradacao={k: float(v) for k, v in deg.items()}, cond_i=bool(c1), p_ilsc=pc, cond_ii=bool(c2),
                             vde_ilsc_ils=list(vde(M.loc[PK, "ILS-C"], M.loc[PK, "ILS"])),
                             veredito="refutada" if not c1 else ("confirmada" if c2 else "parcialmente confirmada"))
         t4f = t4.copy()
         for c in t4f.columns[1:]:
             t4f[c] = t4f[c].map(lambda x: fn(x, 3))
-        salva(t4f, ptab, "h4_degradacao", f"H4: gap por classe e degradação (ILS-C < ILS em PK: Wilcoxon unilateral p = {fp(pc)})")
+        salva(t4f, ptab, "h3_degradacao", f"H3: gap por classe e degradação (ILS-C < ILS em PK: Wilcoxon unilateral p = {fp(pc)})")
 
         fig, ax = plt.subplots(figsize=(7, 4))
-        x = np.arange(len(mh4)); w = 0.36
+        x = np.arange(len(mh3)); w = 0.36
         ax.bar(x - w / 2 - 0.01, t4["Gap T4 (%)"], w, color="#2a78d6", label="T4", edgecolor=SUPERFICIE, linewidth=1)
         ax.bar(x + w / 2 + 0.01, t4["Gap PK (%)"], w, color="#eb6834", label="PK", edgecolor=SUPERFICIE, linewidth=1)
-        for i, m in enumerate(mh4):
+        for i, m in enumerate(mh3):
             ax.annotate(fn(t4["Gap T4 (%)"][i], 2), (i - w / 2, t4["Gap T4 (%)"][i]), xytext=(0, 3), textcoords="offset points", ha="center", fontsize=8, color=TINTA2)
             ax.annotate(fn(t4["Gap PK (%)"][i], 2), (i + w / 2, t4["Gap PK (%)"][i]), xytext=(0, 3), textcoords="offset points", ha="center", fontsize=8, color=TINTA2)
-        ax.set_xticks(x, mh4); ax.grid(axis="x", visible=False)
+        ax.set_xticks(x, mh3); ax.grid(axis="x", visible=False)
         ax.set_ylabel("Gap médio ao BKS (%)")
-        ax.set_title("H4: gap médio por método nas classes T4 e PK", loc="left", fontsize=11)
+        ax.set_title("H3: gap médio por método nas classes T4 e PK", loc="left", fontsize=11)
         ax.legend()
-        fig.tight_layout(); fig.savefig(os.path.join(pfig, "h4_barras.png"), dpi=200); plt.close(fig)
+        fig.tight_layout(); fig.savefig(os.path.join(pfig, "h3_barras.png"), dpi=200); plt.close(fig)
 
     with open(os.path.join(saida, "resumo.json"), "w", encoding="utf-8") as f:
         json.dump(resumo, f, indent=1, ensure_ascii=False)

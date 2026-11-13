@@ -1,0 +1,31 @@
+% ============================================================================
+% Hipótese 1 — versão reescrita e resumida (substitui a subseção 3.3.1)
+% Mesmo número de parágrafos e extensão aproximada do texto original.
+% ============================================================================
+
+\subsubsection{Hipótese 1: Busca local proposta versus refinamento $\sigma$ no MSPD}
+
+A hipótese H1 afirma que, com o mesmo multi-start e o mesmo tempo, trocar o
+refinamento $\sigma$ pela BL reduz o gap ao BKS. O motivo é que $\sigma_i$ mede
+apenas a distância de $i$ ao vértice visitado mais próximo, e não o custo real
+$\Delta^+(i) = d_{ai} + d_{ib} - d_{ab}$ de inseri-lo entre $a$ e $b$; o erro
+cresce em rotas longas, em que muitos candidatos têm o mesmo vizinho mais
+próximo, e com distâncias não métricas, em que $\Delta^+$ pode até ser negativo.
+
+Para testá-la, MSPD e MSPD-LS, que diferem apenas na fase de melhoria, serão
+executados nas 408 instâncias, coletando-se o gap ao BKS, o número de iterações
+do laço principal e o tempo médio de uma fase de melhoria (ms). Como a BL é mais
+cara, as duas últimas medidas indicam se um eventual ganho vem de uma melhoria
+mais eficaz, mesmo com menos reinícios, ou de outro fator.
+
+Os resultados serão apresentados em uma tabela com uma linha por classe (T1 a
+T4, PK e total) e colunas com o gap médio, as iterações médias e o tempo da fase
+de melhoria de cada método, as vitórias/empates/derrotas do MSPD-LS e o valor-p,
+e em um gráfico de dispersão com o gap do MSPD no eixo $x$, o do MSPD-LS no eixo
+$y$, um ponto por instância, cor por classe e a diagonal $y = x$ (pontos abaixo
+dela indicam vitória da BL).
+
+A hipótese será confirmada se o Wilcoxon unilateral sobre as 408 instâncias
+favorecer o MSPD-LS com $p < 0{,}05$ e seu gap médio for menor ou igual ao do
+MSPD em todas as classes; parcialmente confirmada se $p < 0{,}05$, mas o MSPD-LS
+for pior em alguma classe; e refutada se $p \geq 0{,}05$.

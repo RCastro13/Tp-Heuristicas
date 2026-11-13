@@ -1,0 +1,5 @@
+Classe,Instâncias,Ótimo provado,Tempo médio resolvidas (s),Limitante - BKS nas não resolvidas (%)
+T1,96,96,"14,3",n/d
+T2,78,72,"55,4","1,29"
+T3,120,66,"148,2","5,92"
+Total,294,234,"64,7","5,45"

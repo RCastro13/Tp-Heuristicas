@@ -73,7 +73,8 @@ def figura(nome, legenda):
 
 
 def fp(p):
-    return "n/d" if p is None else ("< 0,0001" if p < 1e-4 else f"{p:.4f}".replace(".", ","))
+    """Valor-p com o sinal: "= 0,0123" ou "< 0,0001"."""
+    return "n/d" if p is None else ("< 0,0001" if p < 1e-4 else "= " + f"{p:.4f}".replace(".", ","))
 
 
 def fn(x, c=3):
@@ -87,23 +88,24 @@ def main():
     if os.path.exists(os.path.join(RES, "ambiente.json")):
         with open(os.path.join(RES, "ambiente.json"), encoding="utf-8") as f:
             amb = json.load(f)
-    h1, h2, h3, h4 = r.get("H1", {}), r.get("H2", {}), r.get("H3", {}), r.get("H4", {})
+    h1, h2, h3, ex = r.get("H1", {}), r.get("H2", {}), r.get("H3", {}), r.get("exato", {})
+    h2s = r.get("H2_sem_brg180", {})
     completa = r["execucoes"] == ESPERADAS
     d = ["# Resultados e conclusões: heurísticas para o GCOP\n"]
-    d.append("Documento gerado por `analise/gera_documento.py` a partir dos resultados brutos.\n")
+    d.append("Documento gerado por `analise/gera_documento.py` a partir dos resultados brutos. Hipóteses numeradas como em `tp3-heu.pdf` (H1 a H3); a formulação exata é só a referência para o BKS e o ótimo.\n")
     if not completa:
         d.append(f"> **Atenção: bateria incompleta.** Há {r['execucoes']} execuções de {ESPERADAS} previstas; os vereditos abaixo são parciais.\n")
 
     d.append("## 1. Vereditos\n")
     d.append("| Hipótese | Veredito | Evidência |\n|---|---|---|")
-    d.append(f"| H1: BL reduz o gap em relação ao refinamento σ | **{h1.get('veredito', 'pendente')}** | Wilcoxon p = {fp(h1.get('p'))}; classes em que o MSPD-LS perde: {', '.join(h1.get('classes_pior', [])) or 'nenhuma'} |")
-    d.append(f"| H2: metaheurísticas vencem o MSPD | **{h2.get('veredito', 'pendente')}** | Friedman p = {fp(h2.get('friedman_p'))}; vencem o MSPD: {', '.join(h2.get('vencem_mspd', [])) or 'nenhuma'} |")
+    d.append(f"| H1: BL reduz o gap em relação ao refinamento σ | **{h1.get('veredito', 'pendente')}** | Wilcoxon p {fp(h1.get('p'))}; classes em que o MSPD-LS perde: {', '.join(h1.get('classes_pior', [])) or 'nenhuma'} |")
+    d.append(f"| H2: heurísticas propostas vencem o MSPD | **{h2.get('veredito', 'pendente')}** | Friedman p {fp(h2.get('friedman_p'))}; vencem o MSPD: {', '.join(h2.get('vencem_mspd', [])) or 'nenhuma'} |")
+    if h2s:
+        d.append(f"| H2 sem brg180 ({h2s['instancias']} instâncias) | **{h2s['veredito']}** | Friedman p {fp(h2s['friedman_p'])}; vencem o MSPD: {', '.join(h2s['vencem_mspd']) or 'nenhuma'} |")
     d.append(f"| H2: o MA é o melhor | **{'confirmada' if h2.get('ma_e_o_melhor') else 'não confirmada'}** | menor rank médio: {h2.get('melhor_rank', 'n/d')} |")
-    if "veredito" in h3:
-        d.append(f"| H3: distância ao ótimo de {h3['melhor']} | **{h3['veredito']}** | gap médio {fn(h3['gap_medio'])}%; {fn(h3['pct_otimas'], 1)}% de execuções ótimas; {h3['provadas']} ótimos provados |")
-    else:
-        d.append("| H3: distância ao ótimo | **pendente** | formulação exata ainda não executada |")
-    d.append(f"| H4: clusters espalhados exigem troca de representante | **{h4.get('veredito', 'pendente')}** | degradação do ILS maior que a do VNS e a do ALNS: {'sim' if h4.get('cond_i') else 'não'}; ILS-C < ILS em PK: p = {fp(h4.get('p_ilsc'))} |\n")
+    d.append(f"| H3: clusters espalhados exigem troca de representante | **{h3.get('veredito', 'pendente')}** | degradação do ILS maior que a do VNS e a do ALNS: {'sim' if h3.get('cond_i') else 'não'}; ILS-C < ILS em PK: p {fp(h3.get('p_ilsc'))} |\n")
+    if ex.get("instancias"):
+        d.append(f"Referência exata: {ex['provadas']} ótimos provados em {ex['instancias']} instâncias de T1 a T3.\n")
 
     d.append("## 2. Ambiente e execução\n")
     if amb:
@@ -118,7 +120,7 @@ def main():
     d.append(f"- Rotas divergentes na reavaliação independente em Python: {r['rotas_divergentes']}.")
     d.append(f"- Instâncias em que uma heurística superou um ótimo declarado: {r['heuristica_acima_do_otimo']} (deve ser 0).")
     d.append(f"- Excesso sobre t(n): percentil 99 de {fn(r['excesso_tempo_p99_s'])} s e máximo de {fn(r['excesso_tempo_max_s'])} s.\n")
-    d.append("**Desvio de compilação em relação ao artigo:** o artigo especifica `-O2`; esta execução usou as opções registradas acima. Sem otimização, cada método faz menos iterações em t(n), o que afeta os valores absolutos de gap e pode afetar a comparação com o solver, que é um binário otimizado. Se o limite da formulação exata for diferente de 3.600 s, menos ótimos podem ser provados e os limitantes tendem a ser mais fracos.\n")
+    d.append("**Compilação e limite da exata:** o artigo cita só g++ 14.2.0 e C++17; a execução usou as opções registradas acima, sem `-O2`, por decisão da equipe. O limite por instância da formulação exata é o registrado acima.\n")
 
     d.append("## 3. Hipótese 1\n")
     d.append(tabela("h1_por_classe"))
@@ -134,28 +136,25 @@ def main():
     if h2.get("ranks"):
         d.append("Rank médio: " + ", ".join(f"{k} {fn(v, 2)}" for k, v in sorted(h2["ranks"].items(), key=lambda x: x[1])) + ".\n")
 
-    d.append("## 5. Hipótese 3\n")
-    d.append(tabela("h3_gap_otimo"))
-    d.append(tabela("h3_exato"))
-    if h3.get("apenas_descritiva"):
-        d.append("Como a otimalidade foi provada em menos de 30 instâncias, a avaliação é apenas descritiva, conforme o artigo.\n")
-    d.append("A conclusão não se estende às classes T4 e PK, em que a formulação exata não é executada.\n")
+    d.append(tabela("h2_sensibilidade_brg180"))
+    if h2s:
+        d.append(f"Nas 6 instâncias brg180, VNS, ILS, ALNS e MA não encontram solução viável (gap de 100%). Sem elas, o veredito da H2 passa a **{h2s['veredito']}**.\n")
 
-    d.append("## 6. Hipótese 4\n")
-    d.append(tabela("h4_degradacao"))
-    d.append(figura("h4_barras", "Gap médio por método nas classes T4 e PK"))
-    if h4:
-        d.append(f"Vitórias/empates/derrotas do ILS-C contra o ILS em PK: {'/'.join(map(str, h4['vde_ilsc_ils']))}. Como PK tem 18 instâncias e difere de T4 em mais de um aspecto, um efeito é atribuído à combinação dessas características, e não a uma delas isoladamente.\n")
+    d.append("## 5. Hipótese 3\n")
+    d.append(tabela("h3_degradacao"))
+    d.append(figura("h3_barras", "Gap médio por método nas classes T4 e PK"))
+    if h3:
+        d.append(f"Vitórias/empates/derrotas do ILS-C contra o ILS em PK: {'/'.join(map(str, h3['vde_ilsc_ils']))}. Como PK tem 18 instâncias e difere de T4 em mais de um aspecto, um efeito é atribuído à combinação dessas características, e não a uma delas isoladamente.\n")
+
+    d.append("## 6. Referência exata (T1 a T3)\n")
+    d.append(tabela("ref_exato"))
+    d.append(tabela("ref_gap_otimo"))
 
     d.append("## 7. Conclusões\n")
     d.append("*Síntese automática dos critérios do artigo; a interpretação dos mecanismos deve ser feita pela equipe a partir das tabelas acima.*\n")
-    d.append(f"- **H1 {h1.get('veredito', 'pendente')}.** Com o mesmo multi-start e o mesmo tempo, a troca do refinamento σ pela BL obteve p = {fp(h1.get('p'))}.")
-    d.append(f"- **H2 {h2.get('veredito', 'pendente')}.** {len(h2.get('vencem_mspd', []))} de 4 metaheurísticas venceram o MSPD com p de Holm < 0,05. O menor rank médio foi de {h2.get('melhor_rank', 'n/d')}, e a afirmação de que o MA é o melhor {'foi confirmada' if h2.get('ma_e_o_melhor') else 'não foi confirmada'}.")
-    if "veredito" in h3:
-        d.append(f"- **H3 {h3['veredito']}.** {h3['melhor']} ficou a {fn(h3['gap_medio'])}% do ótimo em média e atingiu o ótimo em {fn(h3['pct_otimas'], 1)}% das execuções, nas {h3['provadas']} instâncias com ótimo provado.")
-    else:
-        d.append("- **H3 pendente.** A formulação exata ainda não foi executada.")
-    d.append(f"- **H4 {h4.get('veredito', 'pendente')}.**\n")
+    d.append(f"- **H1 {h1.get('veredito', 'pendente')}.** Com o mesmo multi-start e o mesmo tempo, a troca do refinamento σ pela BL obteve p {fp(h1.get('p'))}.")
+    d.append(f"- **H2 {h2.get('veredito', 'pendente')}.** {len(h2.get('vencem_mspd', []))} de 4 heurísticas propostas venceram o MSPD com p de Holm < 0,05. O menor rank médio foi de {h2.get('melhor_rank', 'n/d')}, e a afirmação de que o MA é o melhor {'foi confirmada' if h2.get('ma_e_o_melhor') else 'não foi confirmada'}.")
+    d.append(f"- **H3 {h3.get('veredito', 'pendente')}.**\n")
 
     d.append("## 8. Decisões de implementação e divergências\n")
     d.append(DECISOES)

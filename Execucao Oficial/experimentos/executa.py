@@ -2,8 +2,8 @@
 
 Grupos:
   heur    MSPD, MSPD-LS, VNS, ILS, ALNS e MA nas 408 instâncias, com 10 sementes e t(n) = max(1, n/50)
-          (H1, H2, H3), e ILS-C nas classes T4 e PK (H4).
-  exato   Formulação exata nas classes T1 a T3 (H3); requer heur concluído para a rota inicial.
+          (H1 e H2), e ILS-C nas classes T4 e PK (H3).
+  exato   Formulação exata nas classes T1 a T3 (referência para BKS e ótimo); requer heur concluído para a rota inicial.
   piloto  Subconjunto de instâncias para a etapa E6, com saída própria e uma semente.
 
   piloto_exato  Formulação exata nas instâncias do piloto.

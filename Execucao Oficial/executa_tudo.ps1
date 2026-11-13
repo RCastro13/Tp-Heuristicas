@@ -73,6 +73,8 @@ function Piloto {
 function Analise {
     & $py experimentos\registra_ambiente.py "$OpcoesCompilacao" $Processos $TempoExato; Confere "ambiente"
     & $py analise\analisa.py; Confere "analise"
+    & $py analise\figuras_artigo.py; Confere "figuras do artigo"
+    & $py analise\tabelas_latex.py; Confere "tabelas LaTeX"
     & $py analise\gera_documento.py; Confere "documento"
 }
 

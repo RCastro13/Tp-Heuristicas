@@ -34,8 +34,8 @@ ETAPAS, UMA A UMA
 (Se o PowerShell bloquear o script, use a forma com -ExecutionPolicy Bypass mostrada acima.)
     .\executa_tudo.ps1 -Etapa preparo   # venv, dependências, compilação, testes
     .\executa_tudo.ps1 -Etapa piloto    # ~5 min; grava em resultados\piloto (não entra nos resultados)
-    .\executa_tudo.ps1 -Etapa heur      # H1, H2, H4 e base de H3
-    .\executa_tudo.ps1 -Etapa exato     # H3; precisa de heur concluído
+    .\executa_tudo.ps1 -Etapa heur      # H1, H2 e H3
+    .\executa_tudo.ps1 -Etapa exato     # referência exata (T1 a T3); precisa de heur concluído
     .\executa_tudo.ps1 -Etapa analise   # tabelas, gráficos, vereditos e RESULTADOS.md
 
 Parâmetros e valores padrão:
@@ -56,13 +56,13 @@ Preparo, piloto e análise: menos de 15 min no total.
 
 DUAS DECISÕES QUE DIFEREM DO ARTIGO
 -----------------------------------
-1. SEM -O2: a compilação padrão não usa -O2, por decisão da equipe; o artigo especifica
-   "-O2 -std=c++17". Para seguir o artigo, acrescente em todas as etapas que compilam:
+1. SEM -O2: a compilação padrão não usa -O2, por decisão da equipe (a versão tp3-heu.pdf do
+   artigo cita só g++ 14.2.0 e C++17). Para usar -O2, acrescente em todas as etapas que compilam:
        -OpcoesCompilacao "-O2 -std=c++17 -static"
    Se mudar a opção, refaça a etapa heur do zero (apague resultados\brutos\heur.jsonl).
 
-2. LIMITE DA EXATA DE 600 s: o artigo usa 3.600 s. Com 600 s, menos ótimos são provados e os
-   limitantes ficam mais fracos, o que afeta a H3 e deve ser informado no artigo final.
+2. LIMITE DA EXATA DE 600 s: na versão tp3-heu.pdf a exata é só referência (BKS e ótimo), sem
+   hipótese própria. Com 600 s, menos ótimos são provados, o que deve ser informado no artigo.
 
 Essas opções ficam registradas em resultados\ambiente.json e aparecem em RESULTADOS.md.
 
@@ -79,8 +79,8 @@ ARQUIVOS GERADOS
 ----------------
 resultados\brutos\heur.jsonl      uma linha por execução heurística
 resultados\brutos\exato.jsonl     uma linha por instância da formulação exata
-resultados\tabelas\               tabelas de H1 a H4 (.md e .csv)
-resultados\figuras\               h1_dispersao, h2_boxplot, h2_acumulada, h4_barras
+resultados\tabelas\               tabelas de H1 a H3 e da referência exata (.md e .csv)
+resultados\figuras\               h1_dispersao, h2_boxplot, h2_acumulada, h3_barras
 resultados\resumo.json            medidas e vereditos
 RESULTADOS.md                     documento de resultados, conclusões e referências
 

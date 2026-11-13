@@ -1,0 +1,124 @@
+{
+ "execucoes": 25620,
+ "erros_execucao": 0,
+ "rotas_divergentes": 0,
+ "inviaveis": 240,
+ "instancias": 408,
+ "heuristica_acima_do_otimo": 0,
+ "excesso_tempo_max_s": 0.1772000000000009,
+ "excesso_tempo_p99_s": 0.021481000000000167,
+ "H1": {
+  "p": 8.722045091559316e-24,
+  "classes_pior": [],
+  "veredito": "confirmada"
+ },
+ "H2": {
+  "friedman_p": 6.958451574748815e-186,
+  "vencem_mspd": [
+   "VNS",
+   "ILS",
+   "MA"
+  ],
+  "veredito": "parcialmente confirmada",
+  "melhor_rank": "MA",
+  "ranks": {
+   "MSPD": 4.616421568627451,
+   "MSPD-LS": 3.911764705882353,
+   "VNS": 2.9044117647058822,
+   "ILS": 2.6299019607843137,
+   "ALNS": 4.699754901960785,
+   "MA": 2.2377450980392157
+  },
+  "ma_e_o_melhor": true,
+  "ma_vs": {
+   "MA < MSPD-LS": 1.6112061107671467e-43,
+   "MA < VNS": 2.870799831493215e-11,
+   "MA < ILS": 3.158187404382244e-10,
+   "MA < ALNS": 2.5563174567550077e-59
+  },
+  "vs_mspd": {
+   "VNS < MSPD": 6.778667222809641e-36,
+   "ILS < MSPD": 2.4260966069526907e-45,
+   "ALNS < MSPD": 0.09724620717640803,
+   "MA < MSPD": 3.108082124272251e-53
+  }
+ },
+ "H2_sem_brg180": {
+  "instancias": 402,
+  "friedman_p": 2.665329615613027e-193,
+  "vencem_mspd": [
+   "VNS",
+   "ILS",
+   "ALNS",
+   "MA"
+  ],
+  "veredito": "confirmada",
+  "melhor_rank": "MA",
+  "ranks": {
+   "MSPD": 4.662935323383085,
+   "MSPD-LS": 3.9477611940298507,
+   "VNS": 2.8805970149253732,
+   "ILS": 2.601990049751244,
+   "ALNS": 4.70273631840796,
+   "MA": 2.2039800995024876
+  },
+  "gap_medio": {
+   "MSPD": 2.0814072210783205,
+   "MSPD-LS": 1.2889809887850165,
+   "VNS": 0.7566816011945263,
+   "ILS": 0.621985446600865,
+   "ALNS": 1.6854623049202162,
+   "MA": 0.4431770625331077
+  },
+  "vs_mspd": {
+   "VNS < MSPD": 1.801210942782716e-40,
+   "ILS < MSPD": 9.754472278231664e-51,
+   "ALNS < MSPD": 0.03208574231869013,
+   "MA < MSPD": 2.718221062681536e-59
+  },
+  "ma_vs": {
+   "MA < MSPD-LS": 8.200651436787459e-49,
+   "MA < VNS": 2.7942028832939483e-11,
+   "MA < ILS": 3.129678151417486e-10,
+   "MA < ALNS": 4.836847707939879e-59
+  },
+  "ma_e_o_melhor": true
+ },
+ "exato": {
+  "provadas": 234,
+  "melhor": "MA",
+  "gap_medio": 1.3757573982989146,
+  "pct_otimas": 82.22222222222221,
+  "gap_medio_por_metodo": {
+   "MSPD": 1.0308784072398551,
+   "MSPD-LS": 0.5404126580724995,
+   "VNS": 1.5330615627215993,
+   "ILS": 1.4438933156170968,
+   "ALNS": 2.0734414403016825,
+   "MA": 1.3757573982989146
+  },
+  "instancias": 294,
+  "por_situacao": {
+   "otimo": 234,
+   "limite_tempo": 60
+  }
+ },
+ "H3": {
+  "degradacao": {
+   "ILS": 0.8094188204119475,
+   "ILS-C": 0.4547018288064406,
+   "VNS": 0.6922361579655412,
+   "ALNS": -0.10726675469973124,
+   "MA": 0.693613263173638
+  },
+  "cond_i": true,
+  "p_ilsc": 0.0088103305552409,
+  "cond_ii": true,
+  "vde_ilsc_ils": [
+   13,
+   0,
+   5
+  ],
+  "veredito": "confirmada"
+ }
+}

@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering
+\caption{H2: medidas por método nas 408 instâncias (gap médio, máximo e da melhor semente, desvio entre sementes, execuções que atingem o BKS, tempo até a melhor solução e rank médio), Wilcoxon contra o MSPD e do MA contra os demais ($p$ corrigido por Holm em cada família) e, à direita, sem as 6 instâncias \texttt{brg180}. Friedman: $p<$0,0001 com e $p<$0,0001 sem \texttt{brg180}.}
+\label{tab:h2}
+\scriptsize
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{lrrrrrrrcrr|rrr}
+\toprule
+ & \multicolumn{3}{c}{Gap (\%)} & & & & & \multicolumn{2}{c}{vs. MSPD} & MA vs. & \multicolumn{3}{c}{Sem \texttt{brg180}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){9-10}\cmidrule(lr){12-14}
+Método & Médio & Máx. & Melhor & Desv. & BKS (\%) & $t^*$ (s) & Rank & V/E/D & $p_{\mathrm{Holm}}$ & $p_{\mathrm{Holm}}$ & Gap (\%) & Rank & $p_{\mathrm{Holm}}$ \\
+\midrule
+MSPD & 2,086 & 15,207 & 1,539 & 0,353 & 27,8 & 1,54 & 4,62 & -- & -- & -- & 2,081 & 4,66 & -- \\
+MSPD-LS & 1,304 & 15,639 & 0,865 & 0,295 & 35,1 & 1,47 & 3,91 & -- & -- & $<$0,0001 & 1,289 & 3,95 & -- \\
+VNS & 2,216 & 100,000 & 1,875 & 0,256 & 51,9 & 1,75 & 2,90 & 263/100/45 & $<$0,0001 & $<$0,0001 & 0,757 & 2,88 & $<$0,0001 \\
+ILS & 2,083 & 100,000 & 1,744 & 0,253 & 52,5 & 1,85 & 2,63 & 286/97/25 & $<$0,0001 & $<$0,0001 & 0,622 & 2,60 & $<$0,0001 \\
+ALNS & 3,131 & 100,000 & 2,341 & 0,517 & 27,3 & 0,47 & 4,70 & 159/83/166 & 0,0972 & $<$0,0001 & 1,685 & 4,70 & 0,0321 \\
+MA & 1,907 & 100,000 & 1,537 & 0,306 & 59,6 & 1,85 & 2,24 & 299/100/9 & $<$0,0001 & -- & 0,443 & 2,20 & $<$0,0001 \\
+\bottomrule
+\end{tabular}
+\end{table}
